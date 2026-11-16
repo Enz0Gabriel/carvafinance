@@ -140,6 +140,20 @@ function OptionSelect({
   );
 }
 
+/** Keeps an archived account/category selectable when editing an existing transaction. */
+function withArchivedFallback(
+  options: Option[],
+  ...refs: ({ id: string; name: string } | null | undefined)[]
+): Option[] {
+  const result = [...options];
+  for (const ref of refs) {
+    if (ref && !result.some((opt) => opt.id === ref.id)) {
+      result.push({ id: ref.id, label: `${ref.name} (arquivada)` });
+    }
+  }
+  return result;
+}
+
 type TransactionFormProps = {
   transaction?: TransactionDTO;
   defaultType?: TransactionType;
@@ -167,10 +181,22 @@ export function TransactionForm({
     setErrors((current) => ({ ...current, [key]: undefined }));
   };
 
-  const accountOptions = (accounts.data ?? []).map((a) => ({
+  const baseAccounts = (accounts.data ?? []).map((a) => ({
     id: a.id,
     label: a.name,
   }));
+  const accountOptions = withArchivedFallback(
+    baseAccounts,
+    transaction?.account,
+    transaction?.toAccount,
+  );
+  const baseCategories = categoryOptions(categories.data ?? []);
+  const categorySelectOptions = withArchivedFallback(
+    baseCategories,
+    transaction && transaction.type === draft.type
+      ? transaction.category
+      : null,
+  );
   const isTransfer = draft.type === "TRANSFER";
 
   function handleSubmit(event: FormEvent) {
@@ -276,7 +302,7 @@ export function TransactionForm({
             id="tx-category"
             value={draft.categoryId}
             onChange={(value) => set("categoryId", value)}
-            options={categoryOptions(categories.data ?? [])}
+            options={categorySelectOptions}
             placeholder="Selecione a categoria"
             invalid={!!errors.categoryId}
           />

@@ -7,6 +7,7 @@ export type CategoryReportRow = {
   name: string;
   color: string;
   parentId: string | null;
+  parentName: string | null;
   totalCents: number;
   previousCents: number;
   changePct: number | null;

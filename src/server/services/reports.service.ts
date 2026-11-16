@@ -66,6 +66,8 @@ export async function categoriesReport(
     0,
   );
 
+  const namesById = new Map(categories.map((c) => [c.id, c.name]));
+
   return categories
     .map((category) => {
       const totalCents = sumOf(current, category.id);
@@ -75,6 +77,9 @@ export async function categoriesReport(
         name: category.name,
         color: category.color,
         parentId: category.parentId,
+        parentName: category.parentId
+          ? (namesById.get(category.parentId) ?? null)
+          : null,
         totalCents,
         previousCents,
         changePct: percentChange(totalCents, previousCents),

@@ -88,4 +88,34 @@ describe("TransactionForm", () => {
       (await screen.findAllByRole("option")).map((o) => o.textContent),
     ).toEqual(["Salário"]);
   });
+
+  it("keeps archived account and category selectable when editing", () => {
+    wrap(
+      <TransactionForm
+        transaction={{
+          id: "tx-1",
+          type: "EXPENSE",
+          amountCents: 1500,
+          date: "2026-11-10",
+          description: "Antigo",
+          account: { id: "old-acc", name: "Banco Antigo", color: "#000000" },
+          toAccount: null,
+          category: {
+            id: "old-cat",
+            name: "Categoria Antiga",
+            color: "#000000",
+            icon: "tag",
+          },
+        }}
+        onSubmit={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByLabelText("Conta")).toHaveTextContent(
+      "Banco Antigo (arquivada)",
+    );
+    expect(screen.getByLabelText("Categoria")).toHaveTextContent(
+      "Categoria Antiga (arquivada)",
+    );
+  });
 });

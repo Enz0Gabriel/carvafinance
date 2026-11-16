@@ -79,6 +79,9 @@ export function withAuth<P = Record<string, never>>(handler: AuthedHandler<P>) {
           z.flattenError(error),
         );
       }
+      if (error instanceof SyntaxError) {
+        return errorResponse(400, "INVALID_JSON", "JSON inválido.");
+      }
       console.error(error);
       return errorResponse(
         500,

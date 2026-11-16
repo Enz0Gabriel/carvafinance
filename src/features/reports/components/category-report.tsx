@@ -11,7 +11,6 @@ import {
 import type { CategoryReportRow } from "../types";
 
 export function CategoryReport({ rows }: { rows: CategoryReportRow[] }) {
-  const names = new Map(rows.map((r) => [r.categoryId, r.name]));
   return (
     <Table>
       <TableHeader>
@@ -35,9 +34,7 @@ export function CategoryReport({ rows }: { rows: CategoryReportRow[] }) {
                   style={{ backgroundColor: row.color }}
                   aria-hidden
                 />
-                {row.parentId && names.get(row.parentId)
-                  ? `${names.get(row.parentId)} › `
-                  : ""}
+                {row.parentName ? `${row.parentName} › ` : ""}
                 {row.name}
               </span>
             </TableCell>

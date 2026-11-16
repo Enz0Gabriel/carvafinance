@@ -52,6 +52,21 @@ describe("withAuth", () => {
     expect((await res.json()).error.code).toBe("VALIDATION_ERROR");
   });
 
+  it("maps SyntaxError from malformed JSON to 400 INVALID_JSON", async () => {
+    getSessionUserId.mockResolvedValue("user-1");
+    const res = await withAuth(async (req) => ok(await req.json()))(
+      new Request("http://localhost/api/x", {
+        method: "POST",
+        body: "{invalid",
+      }),
+      { params: Promise.resolve({}) },
+    );
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({
+      error: { code: "INVALID_JSON", message: "JSON inválido." },
+    });
+  });
+
   it("hides unexpected errors behind a generic 500", async () => {
     getSessionUserId.mockResolvedValue("user-1");
     vi.spyOn(console, "error").mockImplementation(() => {});
