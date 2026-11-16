@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, carvafinance-v1]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: carva
+          POSTGRES_PASSWORD: carva
+          POSTGRES_DB: carvafinance
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U carva -d carvafinance"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://carva:carva@localhost:5432/carvafinance?schema=public
+      TEST_DATABASE_URL: postgresql://carva:carva@localhost:5432/carvafinance_test?schema=public
+      BETTER_AUTH_SECRET: ci-secret-ci-secret-ci-secret-ci-secret
+      BETTER_AUTH_URL: http://localhost:3000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm audit --omit=dev --audit-level=high
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test:coverage
+      - name: Create test database
+        run: PGPASSWORD=carva psql -h localhost -U carva -d carvafinance -c "CREATE DATABASE carvafinance_test;"
+      - run: npm run test:integration
+      - run: npx prisma migrate deploy && npx prisma db seed
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: test-results

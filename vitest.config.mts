@@ -1,0 +1,52 @@
+import "dotenv/config";
+import { fileURLToPath } from "node:url";
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
+
+const testDatabaseUrl = process.env.TEST_DATABASE_URL ?? "";
+// `server-only` throws outside Next's server runtime.
+const serverOnlyStub = fileURLToPath(new URL("./tests/stubs/empty.ts", import.meta.url));
+
+export default defineConfig({
+  resolve: {
+    tsconfigPaths: true,
+    alias: { "server-only": serverOnlyStub },
+  },
+  test: {
+    passWithNoTests: true,
+    coverage: {
+      provider: "v8",
+      include: ["src/domain/**/*.ts"],
+      exclude: ["**/*.test.ts"],
+      thresholds: { lines: 80, functions: 80, branches: 80, statements: 80 },
+    },
+    projects: [
+      {
+        extends: true,
+        plugins: [react()],
+        test: {
+          name: "unit",
+          environment: "jsdom",
+          include: ["src/**/*.test.{ts,tsx}"],
+          setupFiles: ["tests/setup.ts"],
+        },
+      },
+      {
+        extends: true,
+        test: {
+          name: "integration",
+          environment: "node",
+          include: ["tests/integration/**/*.test.ts"],
+          fileParallelism: false,
+          globalSetup: ["tests/integration/global-setup.ts"],
+          env: {
+            DATABASE_URL: testDatabaseUrl,
+            BETTER_AUTH_SECRET:
+              process.env.BETTER_AUTH_SECRET ?? "test-secret-test-secret-test-secret!",
+            BETTER_AUTH_URL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+          },
+        },
+      },
+    ],
+  },
+});
