@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+  WALLET
+  CREDIT_CARD
+  INVESTMENT
+}
+
+enum CategoryKind {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+/// Better-Auth-compatible user (auth tables are added in Task 6).
+model User {
+  id            String   @id
+  name          String
+  email         String   @unique
+  emailVerified Boolean  @default(false) @map("email_verified")
+  image         String?
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  accounts     Account[]
+  categories   Category[]
+  transactions Transaction[]
+
+  @@map("user")
+}
+
+model Account {
+  id                  String      @id @default(cuid())
+  userId              String      @map("user_id")
+  name                String      @db.VarChar(60)
+  type                AccountType
+  initialBalanceCents Int         @default(0) @map("initial_balance_cents")
+  color               String      @db.VarChar(7)
+  archived            Boolean     @default(false)
+  createdAt           DateTime    @default(now()) @map("created_at")
+  updatedAt           DateTime    @updatedAt @map("updated_at")
+
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactionsFrom Transaction[] @relation("TransactionAccount")
+  transactionsTo   Transaction[] @relation("TransactionToAccount")
+
+  @@index([userId])
+  @@map("accounts")
+}
+
+model Category {
+  id        String       @id @default(cuid())
+  userId    String       @map("user_id")
+  parentId  String?      @map("parent_id")
+  name      String       @db.VarChar(40)
+  kind      CategoryKind
+  color     String       @db.VarChar(7)
+  icon      String       @db.VarChar(40)
+  archived  Boolean      @default(false)
+  createdAt DateTime     @default(now()) @map("created_at")
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parent       Category?     @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children     Category[]    @relation("CategoryTree")
+  transactions Transaction[]
+
+  @@index([userId, kind])
+  @@map("categories")
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  userId      String          @map("user_id")
+  type        TransactionType
+  amountCents Int             @map("amount_cents")
+  date        DateTime        @db.Date
+  description String          @default("") @db.VarChar(120)
+  accountId   String          @map("account_id")
+  toAccountId String?         @map("to_account_id")
+  categoryId  String?         @map("category_id")
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account   Account   @relation("TransactionAccount", fields: [accountId], references: [id], onDelete: Restrict)
+  toAccount Account?  @relation("TransactionToAccount", fields: [toAccountId], references: [id], onDelete: Restrict)
+  category  Category? @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@index([userId, date])
+  @@index([userId, accountId])
+  @@index([userId, categoryId])
+  @@map("transactions")
+}
