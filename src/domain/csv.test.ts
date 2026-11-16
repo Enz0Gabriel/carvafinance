@@ -12,8 +12,10 @@ describe("toCsv", () => {
     ).toBe('\uFEFFDescrição;Valor\r\n"\'=HYPERLINK(""x"")";-1599\r\n"a;b";1');
   });
 
-  it("neutralizes +, - and @ prefixes only in string cells", () => {
-    expect(toCsv([["+1", "-2", "@x", -3]])).toBe("\uFEFF'+1;'-2;'@x;-3");
+  it("neutralizes =, +, - and @ prefixes in text but keeps plain numbers numeric", () => {
+    expect(toCsv([["+1", "-cmd", "@x", -3, "-45,90", "=1+1"]])).toBe(
+      "\uFEFF'+1;'-cmd;'@x;-3;-45,90;'=1+1",
+    );
   });
 
   it("quotes cells with line breaks", () => {

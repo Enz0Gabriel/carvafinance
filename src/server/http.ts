@@ -1,3 +1,4 @@
+import { unstable_rethrow } from "next/navigation";
 import { ZodError, z } from "zod";
 import { getSessionUserId } from "./auth";
 
@@ -60,6 +61,8 @@ export function withAuth<P = Record<string, never>>(handler: AuthedHandler<P>) {
       }
       return await handler(req, { userId, params: await ctx.params });
     } catch (error) {
+      // Let Next.js internal control-flow errors (dynamic bail-out, redirects) pass through.
+      unstable_rethrow(error);
       if (error instanceof AppError) {
         return errorResponse(
           error.status,
