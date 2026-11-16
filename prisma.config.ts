@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { defineConfig, env } from "prisma/config";
+import { defineConfig } from "prisma/config";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -9,6 +9,8 @@ export default defineConfig({
     seed: "tsx --conditions=react-server prisma/seed.ts",
   },
   datasource: {
-    url: env("DATABASE_URL"),
+    // Optional here so `prisma generate` works without a database (Docker build, CI, fresh clone);
+    // commands that touch the database still fail clearly when it is missing.
+    url: process.env.DATABASE_URL ?? "",
   },
 });

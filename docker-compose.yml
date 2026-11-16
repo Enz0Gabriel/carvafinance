@@ -17,5 +17,31 @@ services:
       timeout: 5s
       retries: 10
 
+  # One-shot job: applies migrations and creates the demo user (idempotent).
+  migrate:
+    build:
+      context: .
+      target: build
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed"
+    environment: &app-env
+      DATABASE_URL: postgresql://carva:carva@db:5432/carvafinance?schema=public
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET:-change-me-in-production-please-32chars}
+      BETTER_AUTH_URL: ${BETTER_AUTH_URL:-http://localhost:3000}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  app:
+    build:
+      context: .
+      target: runner
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment: *app-env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
 volumes:
   pgdata:
