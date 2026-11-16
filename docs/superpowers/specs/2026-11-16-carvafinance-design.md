@@ -1,6 +1,6 @@
 # CarvaFinance — Planejamento Técnico (v3: full-stack com Next.js + Docker)
 
-![Logo CarvaFinance](C:/Users/enzog/.gemini/antigravity/brain/f5fa18cb-3cc7-4684-8f41-250421f3d236/.user_uploaded/media_1794797559631_9c496ddf.webp)
+![Logo CarvaFinance](../../../public/logo.webp)
 
 > [!NOTE]
 > **Situação atual:** a pasta `c:\projects\carvafinance` está **vazia**. **Objetivo:** projeto full-stack de portfólio no GitHub, que qualquer pessoa sobe com **um comando** (`docker compose up`).
