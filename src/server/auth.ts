@@ -9,6 +9,15 @@ import { createDefaultCategories } from "./services/default-categories";
 export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
   baseURL: env.BETTER_AUTH_URL,
+  trustedOrigins:
+    process.env.NODE_ENV !== "production"
+      ? [
+          "http://localhost:3000",
+          "http://localhost:3001",
+          "http://127.0.0.1:3000",
+          "http://127.0.0.1:3001",
+        ]
+      : undefined,
   database: prismaAdapter(db, { provider: "postgresql" }),
   account: { modelName: "authAccount" },
   emailAndPassword: { enabled: true, minPasswordLength: 8 },
