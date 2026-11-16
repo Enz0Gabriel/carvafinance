@@ -46,3 +46,8 @@ next-env.d.ts
 
 # Prisma generated client
 /src/generated/
+
+# Test artifacts
+/coverage/
+/test-results/
+/playwright-report/

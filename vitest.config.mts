@@ -14,6 +14,12 @@ export default defineConfig({
   },
   test: {
     passWithNoTests: true,
+    coverage: {
+      provider: "v8",
+      include: ["src/domain/**/*.ts"],
+      exclude: ["**/*.test.ts"],
+      thresholds: { lines: 80, functions: 80, branches: 80, statements: 80 },
+    },
     projects: [
       {
         extends: true,

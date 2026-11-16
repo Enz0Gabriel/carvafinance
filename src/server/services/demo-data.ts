@@ -150,19 +150,44 @@ export async function seedDemo(today: Date): Promise<{ created: boolean }> {
       toAccountId: savings.id,
     });
 
+    let cardSpend = 0;
     for (let i = 0; i < 15; i++) {
       const group = EXPENSES[Math.floor(rand() * EXPENSES.length)];
-      const payWith = [checking, wallet, card][Math.floor(rand() * 3)];
+      const amountCents = between(group.min, group.max);
+      // Small purchases come from the wallet, the rest from checking or the credit card.
+      const payWith =
+        amountCents < 3000 ? wallet : rand() < 0.6 ? checking : card;
+      const date = day(1 + Math.floor(rand() * 27));
+      if (payWith === card && date <= todayKey) cardSpend += amountCents;
       push({
         type: "EXPENSE",
-        amountCents: between(group.min, group.max),
-        date: day(1 + Math.floor(rand() * 28)),
+        amountCents,
+        date,
         description:
           group.descriptions[Math.floor(rand() * group.descriptions.length)],
         accountId: payWith.id,
         categoryId: categoryId(group.category, "EXPENSE"),
       });
     }
+    // The card bill is paid at month end, so only the current month stays open.
+    if (cardSpend > 0) {
+      push({
+        type: "TRANSFER",
+        amountCents: cardSpend,
+        date: day(28),
+        description: "Pagamento da fatura",
+        accountId: checking.id,
+        toAccountId: card.id,
+      });
+    }
+    push({
+      type: "TRANSFER",
+      amountCents: 10000,
+      date: day(2),
+      description: "Saque",
+      accountId: checking.id,
+      toAccountId: wallet.id,
+    });
   }
 
   await db.transaction.createMany({ data });
