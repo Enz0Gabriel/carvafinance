@@ -6,7 +6,7 @@
 
 **Controle financeiro pessoal full-stack, rápido, seguro e pronto para rodar com um comando.**
 
-[![CI](https://img.shields.io/github/actions/workflow/status/Enz0Gabriel/carvafinance/ci.yml?branch=carvafinance-v1&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/Enz0Gabriel/carvafinance/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/Enz0Gabriel/carvafinance/ci.yml?branch=master&style=for-the-badge&logo=githubactions&logoColor=white&label=CI)](https://github.com/Enz0Gabriel/carvafinance/actions/workflows/ci.yml)
 ![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=for-the-badge&logo=nextdotjs&logoColor=white)
 ![React](https://img.shields.io/badge/React_19-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript_Strict-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
