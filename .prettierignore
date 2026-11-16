@@ -1,0 +1,7 @@
+node_modules
+.next
+build
+dist
+docs
+.superpowers
+package-lock.json
