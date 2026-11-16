@@ -3,6 +3,9 @@ const BRL_FORMATTER = new Intl.NumberFormat("pt-BR", {
   currency: "BRL",
 });
 
+/** Integer with `.` thousands separators, e.g. `1.234` or `12.345.678`. */
+const GROUPED_INTEGER = /^\d{1,3}(\.\d{3})+$/;
+
 /**
  * Parses user input for money into integer cents (> 0), or returns null if invalid or non-positive.
  *
@@ -63,7 +66,7 @@ export function parseMoneyInput(input: string): number | null {
 
     // Integer part validation
     if (rawInt.includes(".")) {
-      if (!/^\d{1,3}(\.\d{3})+$/.test(rawInt)) {
+      if (!GROUPED_INTEGER.test(rawInt)) {
         return null;
       }
       intStr = rawInt.replace(/\./g, "");
@@ -95,7 +98,7 @@ export function parseMoneyInput(input: string): number | null {
         fracStr = rawFrac;
       } else {
         // Otherwise dot is a thousands separator
-        if (!/^\d{1,3}(\.\d{3})+$/.test(clean)) {
+        if (!GROUPED_INTEGER.test(clean)) {
           return null;
         }
         intStr = clean.replace(/\./g, "");
@@ -103,7 +106,7 @@ export function parseMoneyInput(input: string): number | null {
       }
     } else if (dotCount > 1) {
       // Multiple dots: thousands separators
-      if (!/^\d{1,3}(\.\d{3})+$/.test(clean)) {
+      if (!GROUPED_INTEGER.test(clean)) {
         return null;
       }
       intStr = clean.replace(/\./g, "");
