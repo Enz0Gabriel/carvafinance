@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { Toaster } from "@/shared/components/ui/sonner";
 
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
@@ -13,7 +12,6 @@ export default function AuthLayout({ children }: LayoutProps<"/">) {
         </div>
         {children}
       </div>
-      <Toaster richColors position="top-center" />
     </main>
   );
 }

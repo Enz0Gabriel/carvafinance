@@ -12,6 +12,7 @@ import {
   startOfYear,
   subMonths,
 } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 export type PeriodPreset =
   | "this-month"
@@ -139,4 +140,21 @@ export function toDbDate(date: string): Date {
 /** Prisma `@db.Date` value (UTC midnight) → `YYYY-MM-DD`. */
 export function fromDbDate(date: Date): string {
   return date.toISOString().slice(0, 10);
+}
+
+const capitalize = (text: string) =>
+  text.charAt(0).toUpperCase() + text.slice(1);
+
+/** Human label: "Novembro de 2026", "Set 2026 – nov 2026" or "10/11/2026 – 19/11/2026". */
+export function formatRangeLabel(range: DateRange): string {
+  const from = mustParseDay(range.from);
+  const to = mustParseDay(range.to);
+  const months = wholeMonthCount(range);
+  if (months === 1)
+    return capitalize(format(from, "MMMM 'de' yyyy", { locale: ptBR }));
+  if (months !== null) {
+    const short = (date: Date) => format(date, "MMM yyyy", { locale: ptBR });
+    return capitalize(`${short(from)} – ${short(to)}`);
+  }
+  return `${format(from, "dd/MM/yyyy")} – ${format(to, "dd/MM/yyyy")}`;
 }

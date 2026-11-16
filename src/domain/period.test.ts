@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  formatRangeLabel,
   fromDbDate,
   isValidRange,
   listMonths,
@@ -84,6 +85,20 @@ describe("db date conversion", () => {
     expect(fromDbDate(toDbDate("2026-11-30"))).toBe("2026-11-30");
     expect(toDbDate("2026-11-30").toISOString()).toBe(
       "2026-11-30T00:00:00.000Z",
+    );
+  });
+});
+
+describe("formatRangeLabel", () => {
+  it("labels single months, month spans and arbitrary ranges", () => {
+    expect(formatRangeLabel({ from: "2026-11-01", to: "2026-11-30" })).toBe(
+      "Novembro de 2026",
+    );
+    expect(formatRangeLabel({ from: "2026-09-01", to: "2026-11-30" })).toBe(
+      "Set 2026 – nov 2026",
+    );
+    expect(formatRangeLabel({ from: "2026-11-10", to: "2026-11-19" })).toBe(
+      "10/11/2026 – 19/11/2026",
     );
   });
 });
