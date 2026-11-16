@@ -119,6 +119,11 @@ export function listMonths(range: DateRange): string[] {
   }).map((month) => format(month, "yyyy-MM"));
 }
 
+/** True for an existing calendar day written as `YYYY-MM-DD`. */
+export function isValidDate(value: string): boolean {
+  return parseDay(value) !== null;
+}
+
 export function isValidRange(range: DateRange): boolean {
   const from = parseDay(range.from);
   const to = parseDay(range.to);
