@@ -4,10 +4,13 @@ import { defineConfig } from "vitest/config";
 import react from "@vitejs/plugin-react";
 
 const testDatabaseUrl = process.env.TEST_DATABASE_URL ?? "";
+// `server-only` throws outside Next's server runtime.
+const serverOnlyStub = fileURLToPath(new URL("./tests/stubs/empty.ts", import.meta.url));
 
 export default defineConfig({
   resolve: {
     tsconfigPaths: true,
+    alias: { "server-only": serverOnlyStub },
   },
   test: {
     passWithNoTests: true,
@@ -24,14 +27,6 @@ export default defineConfig({
       },
       {
         extends: true,
-        resolve: {
-          alias: {
-            // `server-only` throws outside Next's server runtime.
-            "server-only": fileURLToPath(
-              new URL("./tests/stubs/empty.ts", import.meta.url),
-            ),
-          },
-        },
         test: {
           name: "integration",
           environment: "node",
